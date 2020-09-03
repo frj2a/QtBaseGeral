@@ -116,12 +116,12 @@ count(op,1) {
 }
 count(op,0) {
     defineReplace(Date) {
-        DATE = $$system(LC_ALL=C date | gawk \'{printf \"%4s/%3s/%02g\",$6,$2,$3}\')
+        DATE = $$system(date +"%Y/%m/%d")
         return ($$DATE)
     }
 
     defineReplace(Hour)	{
-        HOUR = $$system(LC_ALL=C date | gawk \'{print $4}\')
+        HOUR = $$system(date +"%H:%M:%S")
         return ($$HOUR)
     }
     VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE 0
@@ -136,8 +136,8 @@ message(Data : $$DATA)
 message(Hora : $$HORA)
 
 DEFINES += \
-	REV_SUBVN_DATE=\\\"$$DATA\\\" \
-	REV_SUBVN_HOUR=\\\"$$HORA\\\" \
+        BUILD_DATE=\\\"$$DATA\\\" \
+        BUILD_HOUR=\\\"$$HORA\\\" \
 	REV_PATCH_CODE=$$REV_PATCH_CODE \
 	REV_MINOR_CODE=$$REV_MINOR_CODE \
 	REV_MAJOR_CODE=$$REV_MAJOR_CODE \
