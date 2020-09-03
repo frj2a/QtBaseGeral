@@ -80,11 +80,64 @@ debug	{
 	MODO="DEBUG"
 }
 
+release: DESTDIR = ./release
 
-VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE
+debug: DESTDIR = ./debug
+
+VERSION_CONTROL = GIT
+
+op=$$find(VERSION_CONTROL, SVN)
+count(op,1) {
+    defineReplace(Date)	{
+        DATE = $$system(set LC_ALL=C && svn info $$PROJECT_DIR | grep "Date:" | cut -d\" \"   -f4)
+        return ($$DATE)
+    }
+
+    defineReplace(Hour)	{
+        DATE = $$system(set LC_ALL=C && svn info $$PROJECT_DIR | grep "Date:" | cut -d\" \"   -f5)
+        return ($$DATE)
+    }
+    win32 {
+        defineReplace(Revisions)	{
+            NUMBERS = $$system(set LANG=en_US && svn info $$PROJECT_DIR | sed --quiet /Rev:/p | cut -d: -f2 )
+            return ($$NUMBERS)
+        }
+    }
+
+    unix {
+        defineReplace(Revisions)	{
+            NUMBERS = $$system(B=`LC_ALL=C svn info $$PROJECT_DIR | grep "Rev:" | cut -d\" \"   -f4` && echo $B)
+            return ($$NUMBERS)
+        }
+    }
+
+    VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE $$Revisions()
+    DEFINES += REV_SUBVN_CODE=$$Revisions() \
+}
+count(op,0) {
+    defineReplace(Date) {
+        DATE = $$system(LC_ALL=C date | gawk \'{printf \"%4s/%3s/%02g\",$6,$2,$3}\')
+        return ($$DATE)
+    }
+
+    defineReplace(Hour)	{
+        HOUR = $$system(LC_ALL=C date | gawk \'{print $4}\')
+        return ($$HOUR)
+    }
+    VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE 0
+    DEFINES += REV_SUBVN_CODE=0 \
+}
+
 VERSAO = $$join(VER, ".")
+DATA = $$Date()
+HORA = $$Hour()
+
+message(Data : $$DATA)
+message(Hora : $$HORA)
 
 DEFINES += \
+	REV_SUBVN_DATE=\\\"$$DATA\\\" \
+	REV_SUBVN_HOUR=\\\"$$HORA\\\" \
 	REV_PATCH_CODE=$$REV_PATCH_CODE \
 	REV_MINOR_CODE=$$REV_MINOR_CODE \
 	REV_MAJOR_CODE=$$REV_MAJOR_CODE \
@@ -97,7 +150,10 @@ unix: DEFINES += _LINUX QT_DLL
 
 win32: DEFINES += _WINDOWS WIN32 _WIN32_WINNT=0x0502
 
+unix {
+	TESTE = $$system( if [ -e Doxyfil ] ; then cat Doxyfil | sed -r 's/PROJECT_NUMBER\\ *\\=\\ *[0-9.]*/PROJECT_NUMBER\\ \\=\\ '$$VERSAO'/' > Doxyfile; fi)
+}
 
-unix:  message($$DESTDIR/$$TARGET V.: $$VERSAO -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG  -  arquitetura $$ARCH)
-win32: message($$DESTDIR/$$TARGET V.: $$VERSAO -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN32)
-win64: message($$DESTDIR/$$TARGET V.: $$VERSAO -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN64)
+unix:  message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG  -  arquitetura $$ARCH)
+win32: message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN32)
+win64: message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN64)
