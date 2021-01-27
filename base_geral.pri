@@ -5,9 +5,9 @@
 #
 # Exige a definição dos parâmetros:
 #
-# REV_MAJOR_CODE = x
-# REV_MINOR_CODE = y
-# REV_PATCH_CODE = z
+# VER_MAJ = x
+# VER_MIN = y
+# VER_PAT = z
 # PROJECT_DIR=$$PWD
 
 GENERATED_FILES_PATH_BASE = ./
@@ -80,7 +80,7 @@ debug	{
 	MODO="DEBUG"
 }
 
-release: DESTDIR = ./release
+release: DESTDIR = ./
 
 debug: DESTDIR = ./debug
 
@@ -111,7 +111,7 @@ count(op,1) {
         }
     }
 
-    VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE $$Revisions()
+    VER = $$VER_MAJ $$VER_MIN $$VER_PAT $$Revisions()
     DEFINES += REV_SUBVN_CODE=$$Revisions() \
 }
 count(op,0) {
@@ -124,7 +124,7 @@ count(op,0) {
         HOUR = $$system(date +"%H:%M:%S")
         return ($$HOUR)
     }
-    VER = $$REV_MAJOR_CODE $$REV_MINOR_CODE $$REV_PATCH_CODE 0
+    VER = $$VER_MAJ $$VER_MIN $$VER_PAT 0
     DEFINES += REV_SUBVN_CODE=0 \
 }
 
@@ -138,13 +138,13 @@ message(Hora : $$HORA)
 DEFINES += \
         BUILD_DATE=\\\"$$DATA\\\" \
         BUILD_HOUR=\\\"$$HORA\\\" \
-	REV_PATCH_CODE=$$REV_PATCH_CODE \
-	REV_MINOR_CODE=$$REV_MINOR_CODE \
-	REV_MAJOR_CODE=$$REV_MAJOR_CODE \
-	REV_CODE=\\\"$$VERSAO\\\" \
-	APP_VERSION=\\\"$$VERSAO\\\" \
-	APP_NAME=\\\"$$TARGET\\\" \
-	ARCH_$$ARCH
+        REV_PATCH_CODE=$$VER_PAT \
+        REV_MINOR_CODE=$$VER_MIN \
+        REV_MAJOR_CODE=$$VER_MAJ \
+        REV_CODE=\\\"$$VERSAO\\\" \
+        APP_VERSION=\\\"$$VERSAO\\\" \
+        APP_NAME=\\\"$$TARGET\\\" \
+        ARCH=\\\"$$ARCH\\\"
 
 unix: DEFINES += _LINUX QT_DLL
 
@@ -154,6 +154,6 @@ unix {
 	TESTE = $$system( if [ -e Doxyfil ] ; then cat Doxyfil | sed -r 's/PROJECT_NUMBER\\ *\\=\\ *[0-9.]*/PROJECT_NUMBER\\ \\=\\ '$$VERSAO'/' > Doxyfile; fi)
 }
 
-unix:  message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG  -  arquitetura $$ARCH)
-win32: message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN32)
-win64: message($$DESTDIR/$$TARGET v.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN64)
+unix:  message($$GENERATED_FILES_PATH_BASE$$TARGET V.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG  -  arquitetura $$ARCH)
+win32: message($$GENERATED_FILES_PATH_BASE$$TARGET V.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN32)
+win64: message($$GENERATED_FILES_PATH_BASE$$TARGET V.: $$VERSAO - $$DATA $$HORA  -  Qt: $$QT_VERSION  -  Compilador $$QMAKE_COMPILER  -  modo: $$MODO  -  opcoes: $$CONFIG - WIN64)
